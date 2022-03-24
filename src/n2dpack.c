@@ -3,12 +3,12 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
-#include "ucl/ucl.h"
 #ifdef __linux__
 #include <sys/stat.h>
 #else
 #include <io.h>
 #endif
+#include "ucl/ucl.h"
 
 #define DEFCOMPLV	10
 
@@ -20,6 +20,10 @@
 #define _CRTAPI1
 #endif
 
+UCL_PUBLIC(int)
+ucl_nrv2d_test_overlap_8_o (const ucl_bytep src, ucl_uint src_off,
+	ucl_uint  src_len, ucl_uintp dst_len, ucl_voidp wrkmem, unsigned int *poverlap);
+
 const char *in_fname  = NULL;
 const char *out_fname = NULL;
 
@@ -30,10 +34,12 @@ static unsigned int get_nrv2d_overhead (unsigned int size);
 
 int _CRTAPI1 main (int argc, const char *argv[])
 {
-	int cr, in_len, out_len, i;
+	int cr, in_len, out_len, olen, i;
+	unsigned int ovrlp;
 	char complv = DEFCOMPLV;
 	FILE *f;
-	char *pi = NULL, *po = NULL, f_e = 0;
+	char *pi = NULL, *po = NULL;
+	char f_e = 0, f_to = 0;
 	const char *pa, *fname;
 	long flen;
 
@@ -43,19 +49,19 @@ int _CRTAPI1 main (int argc, const char *argv[])
 #ifdef _WIN32
 		|| pa [0] == '/'
 #endif
-		) {	if ((pa [1] == '?' ||
-				tolower (pa [1]) == 'h') && pa [2] == '\0' ||
-				stricmp (pa + 1, "help") == 0 ||
-				pa [0] == '-' && stricmp (pa + 1, "-help") == 0)
-					goto usg;
-			if (isdigit (pa [1])) {
-				cr = atoi (pa + 1);
-				if (cr > 10 || cr < 0)
-					printf ("Bad compression level: %s\n", pa);
+		) {	pa ++;
+			if ((pa [0] == '?' || tolower (pa [0]) == 'h')
+				&& pa [1] == '\0' || stricmp (pa, "help") == 0 ||
+				pa [0] == '-' && stricmp (pa, "-help") == 0) goto usg;
+			if (tolower (pa [0]) == 'o' && pa [1] == '\0') { f_to = 1; continue; }
+			else if (isdigit (pa [0])) {
+				cr = atoi (pa);
+				if (cr > 10 || cr <= 0)
+					printf ("Bad compression level: %s\n", pa-1), f_e = 1;
 				else	complv = cr;
 				continue;
 			}
-			printf ("Unknown option: %s\n", pa); f_e = 1;
+			printf ("Unknown option: %s\n", pa-1); f_e = 1;
 			continue;
 		}
 		if (in_fname == NULL) in_fname = pa;
@@ -104,14 +110,23 @@ merr:		puts ("Memory allocation error");
 		cr = 1; goto err1;
 	}
 	free (pi); pi = NULL; cr = 0;
-	printf ("File:\t%s\nInitial size:\t%5d B\nPacked:\t\t%5d B (%.1f %%)\n",
-		in_fname, in_len, out_len, (float)(out_len * 100) / in_len);
+	if (f_to) {
+		olen = in_len;
+		cr = ucl_nrv2d_test_overlap_8_o (po-in_len, in_len, out_len, &olen, NULL, &ovrlp);
+		if (cr < UCL_E_OK) printf ("Overlap test error (%d)\n", cr), f_to = 0;
+	}
+	printf ("File:\t%s\nInitial size:\t%5d B", in_fname, in_len);
+	if (f_to) printf (" (overlap slop: %u B)\n", out_len - ovrlp);
+	else	fputchar ('\n');
+	printf ("Packed:\t\t%5d B (%.1f %%)\n",
+		out_len, (float)(out_len * 100) / in_len);
+	if (out_len >= in_len) puts ("Data is not compressible");
 	if (out_fname != NULL) {
 		f = fopen (out_fname, "wb");
 		fname = out_fname;
 		if (f == NULL) goto iomsg;
 		if (fwrite (po, out_len, 1, f) != 1) goto iomsg;
-//		printf ("Saved to:\t%s\n", out_fname);
+		printf ("Saved to:\t%s\n", out_fname);
 	}
 err1:	if (po) free (po);
 	if (pi) free (pi);
@@ -133,7 +148,8 @@ static void print_usage (void)
 
 static void usage (void)
 {
-	puts ("Usage:\n  n2dpack <input file> [<output file>] [-<level>]\n"
+	puts ("Usage:\n  n2dpack <input file> [<output file>] [-o] [-<level>]\n"
+	"\t-o\t - test overlap\n"
 	"\t-<level> - 1..10 (max default)");
 }
 

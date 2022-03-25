@@ -1,0 +1,5 @@
+
+CFLAGS = -Os -I.
+
+n2dpack:
+	gcc $(CFLAGS) n2dpack.c n2d_99.c n2d_too.c alloc.c ucl_init.c ucl_util.c ucl_ptr.c -Wl,--strip-all -o n2dpack

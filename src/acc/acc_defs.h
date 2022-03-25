@@ -87,6 +87,7 @@
 
 /* This can be put into a header file but may get ignored by some compilers. */
 #if !defined(ACC_COMPILE_TIME_ASSERT_HEADER)
+#ifndef __GNUC__							// modified for gcc
 #  if (ACC_CC_AZTECC || ACC_CC_ZORTECHC)
 #    define ACC_COMPILE_TIME_ASSERT_HEADER(e)  extern int __acc_cta[1-!(e)];
 #  elif (ACC_CC_DMC || ACC_CC_SYMANTECC)
@@ -96,6 +97,9 @@
 #  else
 #    define ACC_COMPILE_TIME_ASSERT_HEADER(e)  extern int __acc_cta[1-2*!(e)];
 #  endif
+#else
+#    define ACC_COMPILE_TIME_ASSERT_HEADER(e)  ;
+#endif
 #endif
 
 /* This must appear within a function body. */

@@ -51,8 +51,13 @@ int _CRTAPI1 main (int argc, const char *argv[])
 #endif
 		) {	pa ++;
 			if ((pa [0] == '?' || tolower (pa [0]) == 'h')
+#ifndef __linux__
 				&& pa [1] == '\0' || stricmp (pa, "help") == 0 ||
 				pa [0] == '-' && stricmp (pa, "-help") == 0) goto usg;
+#else
+				&& pa [1] == '\0' || strcmp (pa, "help") == 0 ||
+				pa [0] == '-' && strcmp (pa, "-help") == 0) goto usg;
+#endif
 			if (tolower (pa [0]) == 'o' && pa [1] == '\0') { f_to = 1; continue; }
 			else if (isdigit (pa [0])) {
 				cr = atoi (pa);
@@ -117,7 +122,11 @@ merr:		puts ("Memory allocation error");
 	}
 	printf ("File:\t%s\nInitial size:\t%5d B", in_fname, in_len);
 	if (f_to) printf (" (overlap slop: %u B)\n", out_len - ovrlp);
+#ifndef __linux__
 	else	fputchar ('\n');
+#else
+	else	puts("");
+#endif
 	printf ("Packed:\t\t%5d B (%.1f %%)\n",
 		out_len, (float)(out_len * 100) / in_len);
 	if (out_len >= in_len) puts ("Data is not compressible");
@@ -150,7 +159,11 @@ static void usage (void)
 {
 	puts ("Usage:\n  n2dpack <input file> [<output file>] [-o] [-<level>]\n"
 	"\t-o\t - test overlap\n"
-	"\t-<level> - 1..10 (max default)");
+	"\t-<level> - 1..10 (max default)"
+#ifdef __linux__
+	"\n"
+#endif
+);
 }
 
 long file_length (FILE *f)

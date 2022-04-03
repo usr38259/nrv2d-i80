@@ -54,13 +54,12 @@ RB:	LDAX	D
 	RET
 
 OFE:	MOV	B, A
-	DCX	H
-	DCX	H
-	DCX	H
 	MOV	A, L
-	SUI	2
-	ORA	H
-	JNZ	OF2
+	SUI	3
+	MOV	L, A
+	MOV	A, H
+	SBI	0
+	MOV	H, A
 
 	MOV	A, B
 	POP	H

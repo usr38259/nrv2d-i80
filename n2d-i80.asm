@@ -60,6 +60,7 @@ OFE:	MOV	B, A
 	MOV	A, H
 	SBI	0
 	MOV	H, A
+	JNC	OF2
 
 	MOV	A, B
 	POP	H

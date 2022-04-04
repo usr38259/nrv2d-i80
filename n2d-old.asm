@@ -65,13 +65,12 @@ DI2:	DAD	H
 	JMP	L26
 
 L4A:	MOV	E, A
+	DCX	H
+	DCX	H
 	MOV	A, L
-	SUI	3
-	MOV	L, A
-	MOV	A, H
-	SBI	0
-	MOV	H, A
-	JC	L5E
+	ORA	H
+	DCX	H
+	JZ	L5E
 	MOV	H, L
 	LDAX	B
 	INX	B

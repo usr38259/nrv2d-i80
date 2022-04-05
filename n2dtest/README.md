@@ -1,6 +1,6 @@
 # UCL NRV2d decompression for Intel 8080 test
 NRV2D 8-bit decompression implementation test.<br>
-Compile:
+Compile and run:<br>
 `nmake`<br>
 `nmake test`<br>
 or<br>

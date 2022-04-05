@@ -23,6 +23,7 @@ int _CRTAPI1 main ()
 	FILE *f;
 	long fl, ts = 0;
 
+	memset (mem, 0, sizeof (mem));
 	f = fopen (TEXT_BIN, "rb");
 	if (f == NULL) {
 		puts ("BIN file '" TEXT_BIN "' open error");
@@ -40,9 +41,9 @@ int _CRTAPI1 main ()
 		return 1;
 	}
 	fclose (f);
+
 	i8080_cpu_init (&i80);
 	i808x_cpu_reset (&i80);
-	memset (mem, sizeof (mem), 0);
 	i80.SP.w.l = 0x7ffc;
 	*(unsigned short*)&mem [0x7ffe] = 0x7676;
 	*(unsigned short*)&mem [0x7ffc] = 0x7ffe;

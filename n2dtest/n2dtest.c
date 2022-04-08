@@ -50,7 +50,7 @@ int _CRTAPI1 main ()
 
 	while (1) {
 		if (mem [i80.PC.w.l] == 0x76) {
-			printf ("Halt at %04X\n", i80.PC.w.l);
+			printf ("Halt at %04Xh\n", i80.PC.w.l);
 			break;
 		}
 		if (ts < 0) {	puts ("Time exceed"); break; }
@@ -78,10 +78,10 @@ int _CRTAPI1 main ()
 		if (pkl + fl <= 65536) {
 			if (memcmp (mem + pkl, unpkdata, fl) == 0)
 				printf ("Unpacked data file '" UNPKDATA_FILE
-					"' and memory at offset %04X are identical\n", (int)pkl);
+					"' and memory at offset %04Xh are identical\n", (int)pkl);
 			else	puts ("Unpacked data file '" UNPKDATA_FILE "' and memory ARE NOT IDENTICAL");
 		} else {
-			puts ("Size of unpacked data is out of memory");
+			puts ("Unpacked data is out of memory");
 			return 1;
 		}
 	} else {

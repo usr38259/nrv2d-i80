@@ -13,6 +13,6 @@ Versions:
 | Source | Size  | Speed | Description |
 | :---   | :---: | :---: | :--- |
 | `n2d-i80.asm` | 191 B | 100% | fastest version |
-| `n2d-i80-s.asm` | 188 B | 3% slower | shorter (copy loop speed up) |
+| `n2d-i80-s.asm` | 188 B | 3% slower | shorter |
 | `n2d-i80-s2.asm` | 182 B | 18% slower | shorter and slow |
 | `n2d-i80-s3.asm` | 169 B | 12% slower | shortest, but not always possible (uses `rst` instruction) |
